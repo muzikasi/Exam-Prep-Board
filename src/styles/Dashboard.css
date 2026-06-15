@@ -1,0 +1,184 @@
+.dashboard {
+  background-color: #0f0f1e;
+  min-height: 100vh;
+  color: white;
+}
+
+.dashboard-hero {
+  background-color: #12122a;
+  padding: 32px 24px 24px;
+}
+
+.dashboard-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: white;
+}
+
+.dashboard-sub {
+  color: #888;
+  font-size: 14px;
+  margin: 0 0 20px;
+}
+
+.dashboard-search-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.dashboard-search {
+  flex: 1;
+  background-color: #1e1e3a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: white;
+  font-size: 14px;
+  min-width: 200px;
+}
+
+.dashboard-search:focus {
+  outline: none;
+  border-color: #4a6cf7;
+}
+
+.dashboard-year {
+  background-color: #1e1e3a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #aaa;
+  font-size: 14px;
+}
+
+.dashboard-search-btn {
+  background-color: #4a6cf7;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.dashboard-search-btn:hover {
+  background-color: #3a5ce5;
+}
+
+.dashboard-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 16px 24px;
+  background-color: #12122a;
+  border-top: 1px solid #222;
+}
+
+.chip {
+  background-color: #1e1e3a;
+  color: #aaa;
+  border: 1px solid #333;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.chip:hover {
+  border-color: #4a6cf7;
+  color: white;
+}
+
+.chip-active {
+  background-color: #4a6cf7;
+  color: white;
+  border-color: #4a6cf7;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 20px 24px;
+  background-color: #0f0f1e;
+}
+
+.subject-card {
+  background-color: #1a1a2e;
+  border: 1px solid #222;
+  border-radius: 10px;
+  padding: 16px;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.subject-card:hover {
+  border-color: #4a6cf7;
+}
+
+.subject-icon {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.subject-name {
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.subject-meta {
+  color: #888;
+  font-size: 12px;
+  margin: 0;
+}
+
+.dashboard-recent {
+  padding: 0 24px 24px;
+}
+
+.recent-label {
+  color: #888;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.recent-item {
+  background-color: #1a1a2e;
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.recent-item:hover {
+  border-color: #4a6cf7;
+}
+
+.recent-icon {
+  font-size: 24px;
+}
+
+.recent-title {
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.recent-meta {
+  color: #888;
+  font-size: 12px;
+  margin: 0;
+}
