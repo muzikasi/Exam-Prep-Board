@@ -10,7 +10,7 @@ const subjects = [
   { icon: '📊', name: 'Economics', count: 67, years: '2018-2026' },
 ]
 
-const chips = ['All subjects', 'Mathematics', 'Physics', 'English', 'History', 'Chemistry', 'Economics']
+const  chips = ['All subjects', 'Mathematics', 'Physics', 'English', 'History', 'Chemistry', 'Economics']
 
 const recentMaterials = [
   { icon: '📐', title: 'Mathematics paper 2 - model answers', meta: 'Mathematics 2024 · uploaded by Dawit.T' },
