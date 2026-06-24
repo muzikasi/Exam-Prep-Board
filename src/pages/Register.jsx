@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { registerUser } from '../api/auth.js'
 import '../styles/Register.css'
 
 function Register() {
@@ -8,16 +9,32 @@ function Register() {
     email: '',
     password: ''
   })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const navigate = useNavigate()
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log('Register data:', formData)
-    // we will connect to backend later
+    setLoading(true)
+    setError('')
+    setSuccess('')
+
+    try {
+      const data = await registerUser(formData)
+      setSuccess(data.message)
+      setTimeout(() => {
+        navigate('/verify-email')
+      }, 2000)
+    } catch (err) {
+      setError(err.response?.data?.message || 'Something went wrong')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -25,6 +42,9 @@ function Register() {
       <div className="register-card">
         <h2 className="register-title">Create Account</h2>
         <p className="register-sub">Join to share and access materials</p>
+
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -57,13 +77,15 @@ function Register() {
               type="password"
               name="password"
               placeholder="••••••••"
-              value={formData.email}
+              value={formData.password}
               onChange={handleChange}
               required
             />
           </div>
 
-          <button type="submit" className="register-btn">Register</button>
+          <button type="submit" className="register-btn" disabled={loading}>
+            {loading ? 'Registering...' : 'Register'}
+          </button>
         </form>
 
         <p className="register-link">

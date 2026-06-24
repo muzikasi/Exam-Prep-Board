@@ -1,26 +1,64 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { getMaterials } from '../api/materials.js'
 import '../styles/Dashboard.css'
 
 const subjects = [
-  { icon: '📐', name: 'Mathematics', count: 84, years: '2018-2025' },
-  { icon: '⚛️', name: 'Physics', count: 61, years: '2016-2026' },
-  { icon: '📚', name: 'English', count: 74, years: '2012-2025' },
-  { icon: '🌍', name: 'History', count: 50, years: '2018-2024' },
-  { icon: '🧪', name: 'Chemistry', count: 65, years: '2019-2025' },
-  { icon: '📊', name: 'Economics', count: 67, years: '2018-2026' },
+  { icon: '📐', name: 'Mathematics' },
+  { icon: '⚛️', name: 'Physics' },
+  { icon: '📚', name: 'English' },
+  { icon: '🌍', name: 'History' },
+  { icon: '🧪', name: 'Chemistry' },
+  { icon: '📊', name: 'Economics' },
 ]
 
-const  chips = ['All subjects', 'Mathematics', 'Physics', 'English', 'History', 'Chemistry', 'Economics']
-
-const recentMaterials = [
-  { icon: '📐', title: 'Mathematics paper 2 - model answers', meta: 'Mathematics 2024 · uploaded by Dawit.T' },
-  { icon: '⚛️', title: 'Physics chapter 5 - electricity summary notes', meta: 'Physics 2024 · uploaded by Dawit.T' },
-]
+const chips = ['All subjects', 'Mathematics', 'Physics', 'English', 'History', 'Chemistry', 'Economics']
 
 function Dashboard() {
+  const [materials, setMaterials] = useState([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [year, setYear] = useState('')
   const [activeChip, setActiveChip] = useState('All subjects')
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    fetchMaterials()
+  }, [])
+
+  const fetchMaterials = async (params = {}) => {
+    try {
+      setLoading(true)
+      const data = await getMaterials(params)
+      setMaterials(data)
+    } catch (error) {
+      console.error('Error fetching materials:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSearch = () => {
+    const params = {}
+    if (search) params.search = search
+    if (year) params.year = year
+    if (activeChip !== 'All subjects') params.subject = activeChip
+    fetchMaterials(params)
+  }
+
+  const handleChip = (chip) => {
+    setActiveChip(chip)
+    const params = {}
+    if (search) params.search = search
+    if (year) params.year = year
+    if (chip !== 'All subjects') params.subject = chip
+    fetchMaterials(params)
+  }
+
+  const handleSubjectCard = (subject) => {
+    setActiveChip(subject)
+    fetchMaterials({ subject })
+  }
 
   return (
     <div className="dashboard">
@@ -37,6 +75,7 @@ function Dashboard() {
             placeholder="🔍 Search by subject or keyword..."
             value={search}
             onChange={e => setSearch(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleSearch()}
           />
           <select
             className="dashboard-year"
@@ -48,7 +87,7 @@ function Dashboard() {
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
-          <button className="dashboard-search-btn">Search</button>
+          <button className="dashboard-search-btn" onClick={handleSearch}>Search</button>
         </div>
       </div>
 
@@ -58,7 +97,7 @@ function Dashboard() {
           <button
             key={chip}
             className={`chip ${activeChip === chip ? 'chip-active' : ''}`}
-            onClick={() => setActiveChip(chip)}
+            onClick={() => handleChip(chip)}
           >
             {chip}
           </button>
@@ -68,26 +107,46 @@ function Dashboard() {
       {/* Subject Cards */}
       <div className="dashboard-grid">
         {subjects.map((s, i) => (
-          <div key={i} className="subject-card">
+          <div key={i} className="subject-card" onClick={() => handleSubjectCard(s.name)}>
             <div className="subject-icon">{s.icon}</div>
             <p className="subject-name">{s.name}</p>
-            <p className="subject-meta">{s.count} materials · {s.years}</p>
           </div>
         ))}
       </div>
 
-      {/* Recent Uploads */}
+      {/* Materials List */}
       <div className="dashboard-recent">
-        <p className="recent-label">Recent uploads</p>
-        {recentMaterials.map((m, i) => (
-          <div key={i} className="recent-item">
-            <span className="recent-icon">{m.icon}</span>
-            <div>
-              <p className="recent-title">{m.title}</p>
-              <p className="recent-meta">{m.meta}</p>
+        <p className="recent-label">
+          {activeChip === 'All subjects' ? 'Recent uploads' : activeChip}
+          {' '}({materials.length})
+        </p>
+
+        {loading ? (
+          <p style={{ color: '#888', textAlign: 'center', padding: '20px' }}>Loading...</p>
+        ) : materials.length === 0 ? (
+          <p style={{ color: '#888', textAlign: 'center', padding: '20px' }}>No materials found!</p>
+        ) : (
+          materials.map((m) => (
+            <div
+              key={m._id}
+              className="recent-item"
+              onClick={() => navigate(`/material/${m._id}`)}
+            >
+              <span className="recent-icon">
+                {m.fileType === 'pdf' ? '📄' : '🖼️'}
+              </span>
+              <div style={{ flex: 1 }}>
+                <p className="recent-title">{m.title}</p>
+                <p className="recent-meta">
+                  {m.subject} · {m.year} · uploaded by {m.uploadedBy?.name}
+                </p>
+              </div>
+              <div style={{ color: '#4a6cf7', fontSize: '13px' }}>
+                ▲ {m.upvotes?.length}
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
     </div>

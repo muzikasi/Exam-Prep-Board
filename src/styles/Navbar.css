@@ -62,3 +62,7 @@
   background-color: #ff4444;
   color: white;
 }
+.navbar-username {
+  color: #4a6cf7 !important;
+  font-weight: 600;
+}

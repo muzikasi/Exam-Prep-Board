@@ -130,8 +130,9 @@
   border-radius: 8px;
   padding: 10px 12px;
   color: white;
-  font-size: 14px;
+  font-size: 13px;
   box-sizing: border-box;
+  letter-spacing: normal;
 }
 
 .form-group input:focus {
@@ -167,4 +168,22 @@
 .register-link a {
   color: #4a6cf7;
   text-decoration: none;
+}
+.alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.alert-error {
+  background-color: #2d1b1b;
+  color: #ff4444;
+  border: 1px solid #ff4444;
+}
+
+.alert-success {
+  background-color: #1b2d1b;
+  color: #44ff44;
+  border: 1px solid #44ff44;
 }

@@ -11,6 +11,9 @@ function Navbar() {
     navigate('/login')
   }
 
+  // Get first name only
+  const firstName = user?.name?.split(' ')[0]
+
   return (
     <nav className="navbar">
       <div className="navbar-logo">
@@ -26,6 +29,9 @@ function Navbar() {
             {user?.role === 'admin' && (
               <Link to="/admin" className="navbar-link">Admin</Link>
             )}
+            <Link to="/profile" className="navbar-link navbar-username">
+              👤 {firstName}
+            </Link>
             <button onClick={handleLogout} className="navbar-btn-logout">
               Logout
             </button>

@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { loginUser } from '../api/auth.js'
+import { useAuth } from '../context/AuthContext.jsx'
 import '../styles/Login.css'
 
 function Login() {
@@ -7,15 +9,29 @@ function Login() {
     email: '',
     password: ''
   })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const navigate = useNavigate()
+  const { login } = useAuth()
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log('Login data:', formData)
-    // we will connect to backend later
+    setLoading(true)
+    setError('')
+
+    try {
+      const data = await loginUser(formData)
+      login(data, data.token)
+      navigate('/dashboard')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Something went wrong')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -23,6 +39,8 @@ function Login() {
       <div className="login-card">
         <h2 className="login-title">Welcome Back</h2>
         <p className="login-sub">Login to access your study materials</p>
+
+        {error && <div className="alert alert-error">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -49,7 +67,9 @@ function Login() {
             />
           </div>
 
-          <button type="submit" className="login-btn">Login</button>
+          <button type="submit" className="login-btn" disabled={loading}>
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
         </form>
 
         <p className="login-link">

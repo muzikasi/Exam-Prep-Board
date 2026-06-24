@@ -7,6 +7,9 @@ import UploadMaterial from './pages/UploadMaterial'
 import AdminPanel from './pages/AdminPanel'
 import Navbar from './components/Navbar'
 import ProtectedRoute from './components/ProtectedRoute'
+import VerifyEmail from './pages/VerifyEmail'
+import Profile from './pages/Profile'
+import MaterialDetail from './pages/MaterialDetail'
 
 function App() {
   return (
@@ -26,9 +29,17 @@ function App() {
             <UploadMaterial />
           </ProtectedRoute>
         } />
+        <Route path="/material/:id" element={<MaterialDetail />} />
         <Route path="/admin" element={
           <ProtectedRoute>
             <AdminPanel />
+          </ProtectedRoute>
+        } />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         } />
       </Routes>
