@@ -17,15 +17,16 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-logo">
-        <Link to="/" className="navbar-logo">ExamBoard</Link>
+        <Link to={token ? '/dashboard' : '/'} className="navbar-logo">ExamBoard</Link>
       </div>
       <div className="navbar-links">
         <Link to="/dashboard" className="navbar-link">Browse</Link>
 
         {token ? (
           <>
-            <Link to="/upload" className="navbar-link">My Uploads</Link>
-            <Link to="/dashboard" className="navbar-link">Bookmarks</Link>
+            <Link to="/my-uploads" className="navbar-link">My Uploads</Link>
+            <Link to="/bookmarks" className="navbar-link">Bookmarks</Link>
+            <Link to="/upload" className="navbar-link">Upload Materials</Link>
             {user?.role === 'admin' && (
               <Link to="/admin" className="navbar-link">Admin</Link>
             )}

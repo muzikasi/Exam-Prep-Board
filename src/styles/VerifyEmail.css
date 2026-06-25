@@ -117,3 +117,64 @@
   color: #44ff44;
   border: 1px solid #44ff44;
 }
+.verify-countdown {
+  color: #888;
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.verify-expired {
+  color: #ff4444;
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.verify-expired a {
+  color: #4a6cf7;
+  text-decoration: none;
+}
+.verify-resend {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.verify-resend-btn {
+  background: none;
+  border: none;
+  color: #4a6cf7;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.verify-resend-btn:hover {
+  color: #3a5ce5;
+}
+
+.verify-resend-countdown {
+  color: #888;
+  font-size: 13px;
+  margin: 0;
+}
+
+.verify-countdown {
+  color: #888;
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.verify-expired {
+  color: #ff4444;
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.verify-expired a {
+  color: #4a6cf7;
+  text-decoration: none;
+}

@@ -98,3 +98,21 @@
 .upload-btn:hover {
   background-color: #3a5ce5;
 }
+.alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.alert-error {
+  background-color: #2d1b1b;
+  color: #ff4444;
+  border: 1px solid #ff4444;
+}
+
+.alert-success {
+  background-color: #1b2d1b;
+  color: #44ff44;
+  border: 1px solid #44ff44;
+}

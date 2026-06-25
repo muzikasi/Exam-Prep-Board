@@ -24,3 +24,8 @@ export const getProfile = async () => {
   const response = await axios.get('/auth/profile')
   return response.data
 }
+
+export const resendOTPCode = async (data) => {
+  const response = await axios.post('/auth/resend-otp', data)
+  return response.data
+}

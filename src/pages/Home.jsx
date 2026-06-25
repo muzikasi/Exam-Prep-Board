@@ -1,6 +1,11 @@
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext.jsx'
 import '../styles/Home.css'
 
 function Home() {
+  const { token } = useAuth()
+  const navigate = useNavigate()
+
   return (
     <div className="home">
       <div className="home-hero">
@@ -10,8 +15,18 @@ function Home() {
           study materials and tips organized by subject and year.
         </p>
         <div className="home-buttons">
-          <a href="/register" className="btn-primary">Get Started</a>
-          <a href="/dashboard" className="btn-secondary">Browse Materials</a>
+          <button
+            className="btn-primary"
+            onClick={() => navigate(token ? '/dashboard' : '/register')}
+          >
+            {token ? 'Go to Dashboard' : 'Get Started'}
+          </button>
+          <button
+            className="btn-secondary"
+            onClick={() => navigate('/dashboard')}
+          >
+            Browse Materials
+          </button>
         </div>
       </div>
     </div>

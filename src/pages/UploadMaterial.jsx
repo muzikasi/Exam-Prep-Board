@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { createMaterial } from '../api/materials.js'
 import '../styles/UploadMaterial.css'
 
 function UploadMaterial() {
@@ -10,6 +12,10 @@ function UploadMaterial() {
   })
   const [file, setFile] = useState(null)
   const [dragOver, setDragOver] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const navigate = useNavigate()
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -25,16 +31,37 @@ function UploadMaterial() {
     setFile(e.dataTransfer.files[0])
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log('Upload data:', formData, file)
-    // we will connect to backend later
+    setLoading(true)
+    setError('')
+    setSuccess('')
+
+    try {
+      const data = new FormData()
+      data.append('title', formData.title)
+      data.append('subject', formData.subject)
+      data.append('year', formData.year)
+      data.append('type', formData.type)
+      data.append('file', file)
+
+      await createMaterial(data)
+      setSuccess('Material uploaded successfully!')
+      setTimeout(() => navigate('/dashboard'), 2000)
+    } catch (err) {
+      setError(err.response?.data?.message || 'Something went wrong')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <div className="upload-container">
       <div className="upload-card">
         <h2 className="upload-title">Upload Study Material</h2>
+
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
 
         <form onSubmit={handleSubmit}>
 
@@ -113,7 +140,9 @@ function UploadMaterial() {
             </div>
           </div>
 
-          <button type="submit" className="upload-btn">Upload Material</button>
+          <button type="submit" className="upload-btn" disabled={loading}>
+            {loading ? 'Uploading...' : 'Upload Material'}
+          </button>
         </form>
       </div>
     </div>

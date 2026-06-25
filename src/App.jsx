@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -10,6 +10,18 @@ import ProtectedRoute from './components/ProtectedRoute'
 import VerifyEmail from './pages/VerifyEmail'
 import Profile from './pages/Profile'
 import MaterialDetail from './pages/MaterialDetail'
+import MyUploads from './pages/MyUploads'
+import Bookmarks from './pages/Bookmarks'
+import VerifyEmailLink from './pages/VerifyEmailLink'
+import { useAuth } from './context/AuthContext.jsx'
+
+// Admin Route component — outside App function!
+function AdminRoute({ children }) {
+  const { token, user } = useAuth()
+  if (!token) return <Navigate to="/login" />
+  if (user?.role !== 'admin') return <Navigate to="/dashboard" />
+  return children
+}
 
 function App() {
   return (
@@ -19,6 +31,9 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/verify-email/:token" element={<VerifyEmailLink />} />
+        <Route path="/material/:id" element={<MaterialDetail />} />
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <Dashboard />
@@ -29,18 +44,25 @@ function App() {
             <UploadMaterial />
           </ProtectedRoute>
         } />
-        <Route path="/material/:id" element={<MaterialDetail />} />
-        <Route path="/admin" element={
+        <Route path="/my-uploads" element={
           <ProtectedRoute>
-            <AdminPanel />
+            <MyUploads />
           </ProtectedRoute>
         } />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-
+        <Route path="/bookmarks" element={
+          <ProtectedRoute>
+            <Bookmarks />
+          </ProtectedRoute>
+        } />
         <Route path="/profile" element={
           <ProtectedRoute>
             <Profile />
           </ProtectedRoute>
+        } />
+        <Route path="/admin" element={
+          <AdminRoute>
+            <AdminPanel />
+          </AdminRoute>
         } />
       </Routes>
     </Router>

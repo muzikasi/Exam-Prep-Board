@@ -1,0 +1,127 @@
+.myuploads-container {
+  min-height: 100vh;
+  background-color: #0f0f1e;
+  padding: 30px 24px;
+  color: white;
+}
+
+.myuploads-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.myuploads-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+
+.myuploads-upload-btn {
+  background-color: #4a6cf7;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.myuploads-upload-btn:hover {
+  background-color: #3a5ce5;
+}
+
+.myuploads-empty {
+  color: #888;
+  text-align: center;
+  padding: 40px;
+  font-size: 16px;
+}
+
+.myuploads-empty-box {
+  text-align: center;
+  padding: 40px;
+}
+
+.myuploads-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.myuploads-item {
+  background-color: #1a1a2e;
+  border: 1px solid #222;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: border-color 0.3s;
+}
+
+.myuploads-item:hover {
+  border-color: #4a6cf7;
+}
+
+.myuploads-item-icon {
+  font-size: 28px;
+}
+
+.myuploads-item-info {
+  flex: 1;
+}
+
+.myuploads-item-title {
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.myuploads-item-meta {
+  color: #888;
+  font-size: 13px;
+  margin: 0;
+}
+
+.myuploads-item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.myuploads-view-btn {
+  background-color: #1e1e3a;
+  color: #4a6cf7;
+  border: 1px solid #4a6cf7;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.myuploads-view-btn:hover {
+  background-color: #4a6cf7;
+  color: white;
+}
+
+.myuploads-delete-btn {
+  background-color: transparent;
+  color: #ff4444;
+  border: 1px solid #ff4444;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.myuploads-delete-btn:hover {
+  background-color: #ff4444;
+  color: white;
+}

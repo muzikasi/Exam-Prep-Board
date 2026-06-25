@@ -26,10 +26,11 @@ function Register() {
 
     try {
       const data = await registerUser(formData)
-      setSuccess(data.message)
-      setTimeout(() => {
-        navigate('/verify-email')
-      }, 2000)
+setSuccess(data.message)
+localStorage.setItem('pendingEmail', formData.email) // save email
+setTimeout(() => {
+  navigate('/verify-email')
+}, 2000)
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong')
     } finally {
