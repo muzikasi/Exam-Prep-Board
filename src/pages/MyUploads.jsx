@@ -70,7 +70,7 @@ function MyUploads() {
               <div className="myuploads-item-info">
                 <p className="myuploads-item-title">{m.title}</p>
                 <p className="myuploads-item-meta">
-                  {m.subject} · {m.year} · {m.type} · ▲ {m.upvotes?.length} upvotes
+                  {m.subject} · {m.year?.ec} EC · {m.type} · ▲ {m.upvotes?.length} upvotes
                 </p>
               </div>
               <div className="myuploads-item-actions">

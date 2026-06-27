@@ -1,4 +1,8 @@
 import { useState, useEffect } from 'react'
+import { Document, Page, pdfjs } from 'react-pdf'
+import 'react-pdf/dist/Page/AnnotationLayer.css'
+import 'react-pdf/dist/Page/TextLayer.css'
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`
 import { useParams, useNavigate } from 'react-router-dom'
 import { getMaterial, upvoteMaterial } from '../api/materials.js'
 import { addBookmark, removeBookmark, getBookmarks } from '../api/bookmarks.js'
@@ -15,6 +19,7 @@ function MaterialDetail() {
     const [upvoted, setUpvoted] = useState(false)
     const [upvoteCount, setUpvoteCount] = useState(0)
     const [bookmarked, setBookmarked] = useState(false)
+    const [numPages, setNumPages] = useState(null)
 
     useEffect(() => {
         fetchMaterial()
@@ -75,6 +80,10 @@ function MaterialDetail() {
     if (loading) return <div className="detail-loading">Loading...</div>
     if (!material) return <div className="detail-loading">Material not found!</div>
 
+    const onDocumentLoadSuccess = ({ numPages }) => {
+        setNumPages(numPages)
+    }
+
     return (
         <div className="detail-container">
 
@@ -103,13 +112,25 @@ function MaterialDetail() {
                         {/* File Preview */}
                         <div className="detail-preview">
                             {material.fileType === 'pdf' ? (
-                                <iframe
-                                    src={material.fileUrl}
-                                    width="100%"
-                                    height="500px"
-                                    title={material.title}
-                                    style={{ border: 'none', borderRadius: '8px' }}
-                                />
+                                <div style={{ width: '100%' }}>
+                                    <Document
+                                        file={material.fileUrl}
+                                        onLoadSuccess={onDocumentLoadSuccess}
+                                        onLoadError={(error) => console.error('PDF error:', error)}
+                                    >
+                                        {Array.from(new Array(numPages), (el, index) => (
+                                            <Page
+                                                key={`page_${index + 1}`}
+                                                pageNumber={index + 1}
+                                                width={600}
+                                            />
+                                        ))}
+                                    </Document>
+
+                                    <p style={{ color: '#888', fontSize: '12px', textAlign: 'center', marginTop: '8px' }}>
+                                        {numPages ? `Total pages: ${numPages}` : 'Loading PDF...'}
+                                    </p>
+                                </div>
                             ) : (
                                 <img
                                     src={material.fileUrl}
@@ -133,8 +154,17 @@ function MaterialDetail() {
                                 <span className="detail-info-badge">{material.subject}</span>
                             </div>
                             <div className="detail-info-row">
-                                <span className="detail-info-label">Year</span>
-                                <span className="detail-info-value">{material.year}</span>
+                                <span className="detail-info-label">Year EC</span>
+                                <span className="detail-info-value">
+                                    {material.year.ec} EC
+                                </span>
+                            </div>
+
+                            <div className="detail-info-row">
+                                <span className="detail-info-label">Year GC</span>
+                                <span className="detail-info-value">
+                                    {material.year.gc} GC
+                                </span>
                             </div>
                             <div className="detail-info-row">
                                 <span className="detail-info-label">Type</span>

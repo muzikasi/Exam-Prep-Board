@@ -89,7 +89,7 @@ function AdminPanel() {
                 <tr key={m._id}>
                   <td>{m.title}</td>
                   <td>{m.subject}</td>
-                  <td>{m.year}</td>
+                  <td>{m.year?.ec} EC / {m.year?.gc} GC</td>
                   <td>{m.uploadedBy?.name}</td>
                   <td>▲ {m.upvotes?.length}</td>
                   <td>

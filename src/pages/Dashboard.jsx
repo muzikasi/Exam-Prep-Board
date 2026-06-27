@@ -10,9 +10,16 @@ const subjects = [
   { icon: '🌍', name: 'History' },
   { icon: '🧪', name: 'Chemistry' },
   { icon: '📊', name: 'Economics' },
+  { icon: '🧬', name: 'Biology' },
+  { icon: '⚖️', name: 'Civics' },
+  { icon: '🧠', name: 'Aptitude' },
+  { icon: '📚', name: 'Summery notes' },
+  { icon: '📝', name: 'Study tips' },
+
+
 ]
 
-const chips = ['All subjects', 'Mathematics', 'Physics', 'English', 'History', 'Chemistry', 'Economics']
+const chips = ['All subjects', 'Mathematics', 'Physics', 'English', 'History', 'Chemistry', 'Economics','Biology','Civics','Aptitude']
 
 function Dashboard() {
   const [materials, setMaterials] = useState([])
@@ -83,7 +90,7 @@ function Dashboard() {
             onChange={e => setYear(e.target.value)}
           >
             <option value="">All years</option>
-            {[2026,2025,2024,2023,2022,2021,2020].map(y => (
+            {[2026,2025,2024,2023,2022,2021,2020,2019,2018,2017,2016,2015].map(y => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
@@ -138,7 +145,7 @@ function Dashboard() {
               <div style={{ flex: 1 }}>
                 <p className="recent-title">{m.title}</p>
                 <p className="recent-meta">
-                  {m.subject} · {m.year} · uploaded by {m.uploadedBy?.name}
+                  {m.subject} · {m.year?.ec} EC / {m.year?.gc} GC · uploaded by {m.uploadedBy?.name}
                 </p>
               </div>
               <div style={{ color: '#4a6cf7', fontSize: '13px' }}>

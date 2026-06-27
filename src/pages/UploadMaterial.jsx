@@ -7,7 +7,8 @@ function UploadMaterial() {
   const [formData, setFormData] = useState({
     title: '',
     subject: '',
-    year: '',
+    yearEC: '',
+    yearGC: '',
     type: '',
   })
   const [file, setFile] = useState(null)
@@ -17,8 +18,32 @@ function UploadMaterial() {
   const [success, setSuccess] = useState('')
   const navigate = useNavigate()
 
+  const convertECtoGC = (year) => {
+    return year ? Number(year) + 8 : ''
+  }
+
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
+
+    const { name, value } = e.target
+
+    if (name === 'yearEC') {
+
+      setFormData({
+        ...formData,
+        yearEC: value,
+        yearGC: convertECtoGC(value)
+      })
+
+    } else {
+
+      setFormData({
+        ...formData,
+        [name]: value
+      })
+
+    }
+
   }
 
   const handleFile = (e) => {
@@ -41,7 +66,8 @@ function UploadMaterial() {
       const data = new FormData()
       data.append('title', formData.title)
       data.append('subject', formData.subject)
-      data.append('year', formData.year)
+      data.append('year[ec]', formData.yearEC)
+      data.append('year[gc]', formData.yearGC)
       data.append('type', formData.type)
       data.append('file', file)
 
@@ -58,7 +84,7 @@ function UploadMaterial() {
   return (
     <div className="upload-container">
       <div className="upload-card">
-        <h2 className="upload-title">Upload Study Material</h2>
+        <h2 className="upload-title">Upload Material</h2>
 
         {error && <div className="alert alert-error">{error}</div>}
         {success && <div className="alert alert-success">{success}</div>}
@@ -97,7 +123,7 @@ function UploadMaterial() {
               <input
                 type="text"
                 name="title"
-                placeholder="e.g. Math paper 2 answers"
+                placeholder="e.g. English Entranc Exam"
                 value={formData.title}
                 onChange={handleChange}
                 required
@@ -114,18 +140,34 @@ function UploadMaterial() {
                 <option>History</option>
                 <option>Chemistry</option>
                 <option>Economics</option>
+                <option>Biology</option>
+                <option>Civics</option>
+                <option>Aptitude</option>
+                <option>Study tips</option>
+                <option>Summery notes</option>
               </select>
             </div>
 
             <div className="form-group">
-              <label>Year</label>
+              <label>Year EC</label>
               <input
                 type="number"
-                name="year"
-                placeholder="e.g. 2024"
-                value={formData.year}
+                name="yearEC"
+                placeholder="e.g. 2016"
+                value={formData.yearEC}
                 onChange={handleChange}
                 required
+              />
+            </div>
+
+
+            <div className="form-group">
+              <label>Year GC</label>
+              <input
+                type="number"
+                name="yearGC"
+                value={formData.yearGC}
+                readOnly
               />
             </div>
 

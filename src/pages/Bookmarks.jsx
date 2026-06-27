@@ -60,7 +60,7 @@ function Bookmarks() {
               <div className="bookmarks-item-info">
                 <p className="bookmarks-item-title">{b.material.title}</p>
                 <p className="bookmarks-item-meta">
-                  {b.material.subject} · {b.material.year} · ▲ {b.material.upvotes?.length} upvotes
+                  {b.material.subject} · {b.material.year?.ec} EC · ▲ {b.material.upvotes?.length} upvotes
                 </p>
               </div>
               <div className="bookmarks-item-actions">
