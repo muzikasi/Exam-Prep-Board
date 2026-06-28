@@ -7,6 +7,7 @@ function UploadMaterial() {
   const [formData, setFormData] = useState({
     title: '',
     subject: '',
+    grade: '',
     yearEC: '',
     yearGC: '',
     type: '',
@@ -66,6 +67,7 @@ function UploadMaterial() {
       const data = new FormData()
       data.append('title', formData.title)
       data.append('subject', formData.subject)
+      data.append('grade', formData.grade)
       data.append('year[ec]', formData.yearEC)
       data.append('year[gc]', formData.yearGC)
       data.append('type', formData.type)
@@ -145,6 +147,18 @@ function UploadMaterial() {
                 <option>Aptitude</option>
                 <option>Study tips</option>
                 <option>Summery notes</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Exam Grade</label>
+              <select name="grade" value={formData.grade} onChange={handleChange} required>
+                <option value="">Select exam grade</option>
+                <option value="grade 9">Grade 9</option>
+                <option value="grade 10">Grade 10</option>
+                <option value="grade 11">Grade 11</option>
+                <option value="grade 12">Grade 12</option>
+                <option value="university student">University student</option>
               </select>
             </div>
 

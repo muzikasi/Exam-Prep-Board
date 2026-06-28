@@ -1,168 +1,245 @@
- 
 .register-container {
   min-height: 100vh;
-  background-color: #0f0f1e;
+  background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 20px;
 }
 
 .register-card {
-  background-color: #1a1a2e;
-  border: 1px solid #333;
+  background: linear-gradient(135deg, #1a1a2e 0%, #12122a 100%);
+  border: 1px solid #4a6cf7;
   border-radius: 12px;
   padding: 36px;
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
+  box-shadow: 0 10px 40px rgba(74, 108, 247, 0.1);
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .register-title {
-  color: white;
-  font-size: 22px;
+  color: #fff;
+  font-size: 26px;
   margin: 0 0 6px;
+  font-weight: 700;
 }
 
 .register-sub {
-  color: #888;
+  color: #aaa;
   font-size: 14px;
   margin: 0 0 24px;
 }
 
+.alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.alert-error {
+  background-color: rgba(255, 107, 107, 0.1);
+  color: #ff6b6b;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+.alert-success {
+  background-color: rgba(82, 196, 26, 0.1);
+  color: #52c41a;
+  border: 1px solid rgba(82, 196, 26, 0.3);
+}
+
 .form-group {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .form-group label {
   display: block;
-  color: #888;
+  color: #ccc;
   font-size: 13px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  font-weight: 600;
 }
 
 .form-group input {
   width: 100%;
-  background-color: #1e1e3a;
+  background-color: #0f0f1e;
   border: 1px solid #333;
   border-radius: 8px;
-  padding: 10px 12px;
-  color: white;
+  padding: 12px 14px;
+  color: #fff;
   font-size: 14px;
   box-sizing: border-box;
+  transition: all 0.3s;
 }
 
 .form-group input:focus {
   outline: none;
   border-color: #4a6cf7;
+  background-color: #131d27;
+  box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+}
+
+.password-strength {
+  margin-top: 10px;
+}
+
+.strength-bar {
+  width: 100%;
+  height: 6px;
+  background-color: #333;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.strength-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+  border-radius: 3px;
+}
+
+.strength-label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.password-requirements {
+  margin-top: 12px;
+  padding: 12px;
+  background-color: rgba(74, 108, 247, 0.05);
+  border-radius: 6px;
+  border: 1px solid rgba(74, 108, 247, 0.1);
+}
+
+.password-requirements p {
+  margin: 6px 0;
+  font-size: 12px;
+  color: #aaa;
+  display: flex;
+  align-items: center;
+}
+
+.password-requirements p.valid {
+  color: #52c41a;
+}
+
+.password-requirements p.invalid {
+  color: #ff6b6b;
+}
+
+.password-match {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.password-match.valid {
+  color: #52c41a;
+}
+
+.password-match.invalid {
+  color: #ff6b6b;
 }
 
 .register-btn {
   width: 100%;
-  background-color: #4a6cf7;
+  background: linear-gradient(135deg, #4a6cf7 0%, #6a8cff 100%);
   color: white;
   border: none;
   border-radius: 8px;
   padding: 12px;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  margin-top: 8px;
-  transition: background-color 0.3s;
+  margin-top: 12px;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(74, 108, 247, 0.3);
 }
 
-.register-btn:hover {
-  background-color: #3a5ce5;
+.register-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(74, 108, 247, 0.4);
+  background: linear-gradient(135deg, #6a8cff 0%, #8aacff 100%);
+}
+
+.register-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.resend-btn {
+  width: 100%;
+  background: transparent;
+  color: #8aacff;
+  border: 1px solid #4a6cf7;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.3s;
+}
+
+.resend-btn:hover:not(:disabled) {
+  background-color: rgba(74, 108, 247, 0.12);
+  color: #a9c0ff;
+}
+
+.resend-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .register-link {
   text-align: center;
-  color: #888;
+  color: #aaa;
   font-size: 13px;
-  margin-top: 16px;
+  margin-top: 20px;
 }
 
 .register-link a {
   color: #4a6cf7;
   text-decoration: none;
-}.register-container {
-  min-height: 100vh;
-  background-color: #0f0f1e;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.register-card {
-  background-color: #1a1a2e;
-  border: 1px solid #333;
-  border-radius: 12px;
-  padding: 36px;
-  width: 100%;
-  max-width: 400px;
-}
-
-.register-title {
-  color: white;
-  font-size: 22px;
-  margin: 0 0 6px;
-}
-
-.register-sub {
-  color: #888;
-  font-size: 14px;
-  margin: 0 0 24px;
-}
-
-.form-group {
-  margin-bottom: 16px;
-}
-
-.form-group label {
-  display: block;
-  color: #888;
-  font-size: 13px;
-  margin-bottom: 6px;
-}
-
-.form-group input {
-  width: 100%;
-  background-color: #1e1e3a;
-  border: 1px solid #333;
-  border-radius: 8px;
-  padding: 10px 12px;
-  color: white;
-  font-size: 13px;
-  box-sizing: border-box;
-  letter-spacing: normal;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: #4a6cf7;
-}
-
-.register-btn {
-  width: 100%;
-  background-color: #4a6cf7;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 12px;
-  font-size: 15px;
   font-weight: 600;
-  cursor: pointer;
-  margin-top: 8px;
-  transition: background-color 0.3s;
+  transition: color 0.3s;
 }
 
-.register-btn:hover {
-  background-color: #3a5ce5;
+.register-link a:hover {
+  color: #6a8cff;
 }
 
-.register-link {
-  text-align: center;
-  color: #888;
-  font-size: 13px;
-  margin-top: 16px;
+@media (max-width: 480px) {
+  .register-card {
+    padding: 24px;
+    max-width: 100%;
+  }
+
+  .register-title {
+    font-size: 22px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .password-requirements {
+    font-size: 11px;
+  }
 }
 
 .register-link a {

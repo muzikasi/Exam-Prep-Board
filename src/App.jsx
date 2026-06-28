@@ -5,6 +5,10 @@ import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import UploadMaterial from './pages/UploadMaterial'
 import AdminPanel from './pages/AdminPanel'
+import ExamPractice from './pages/ExamPractice'
+import Summary from './pages/Summary'
+import StudyTips from './pages/StudyTips'
+import Books from './pages/Books'
 import Navbar from './components/Navbar'
 import ProtectedRoute from './components/ProtectedRoute'
 import VerifyEmail from './pages/VerifyEmail'
@@ -37,6 +41,26 @@ function App() {
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/exam-practice" element={
+          <ProtectedRoute>
+            <ExamPractice />
+          </ProtectedRoute>
+        } />
+        <Route path="/summary" element={
+          <ProtectedRoute>
+            <Summary />
+          </ProtectedRoute>
+        } />
+        <Route path="/study-tips" element={
+          <ProtectedRoute>
+            <StudyTips />
+          </ProtectedRoute>
+        } />
+        <Route path="/books" element={
+          <ProtectedRoute>
+            <Books />
           </ProtectedRoute>
         } />
         <Route path="/upload" element={

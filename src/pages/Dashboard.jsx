@@ -20,12 +20,14 @@ const subjects = [
 ]
 
 const chips = ['All subjects', 'Mathematics', 'Physics', 'English', 'History', 'Chemistry', 'Economics','Biology','Civics','Aptitude']
+const gradeOptions = ['All grades', 'grade 9', 'grade 10', 'grade 11', 'grade 12', 'university student']
 
 function Dashboard() {
   const [materials, setMaterials] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [year, setYear] = useState('')
+  const [selectedGrade, setSelectedGrade] = useState('All grades')
   const [activeChip, setActiveChip] = useState('All subjects')
   const navigate = useNavigate()
 
@@ -49,6 +51,7 @@ function Dashboard() {
     const params = {}
     if (search) params.search = search
     if (year) params.year = year
+    if (selectedGrade && selectedGrade !== 'All grades') params.grade = selectedGrade
     if (activeChip !== 'All subjects') params.subject = activeChip
     fetchMaterials(params)
   }
@@ -58,13 +61,13 @@ function Dashboard() {
     const params = {}
     if (search) params.search = search
     if (year) params.year = year
+    if (selectedGrade && selectedGrade !== 'All grades') params.grade = selectedGrade
     if (chip !== 'All subjects') params.subject = chip
     fetchMaterials(params)
   }
 
-  const handleSubjectCard = (subject) => {
-    setActiveChip(subject)
-    fetchMaterials({ subject })
+  const handleGradeChange = (e) => {
+    setSelectedGrade(e.target.value)
   }
 
   return (
@@ -79,7 +82,7 @@ function Dashboard() {
         <div className="dashboard-search-row">
           <input
             className="dashboard-search"
-            placeholder="🔍 Search by subject or keyword..."
+            placeholder="🔍 Search by subject, keyword, or grade..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSearch()}
@@ -92,6 +95,15 @@ function Dashboard() {
             <option value="">All years</option>
             {[2026,2025,2024,2023,2022,2021,2020,2019,2018,2017,2016,2015].map(y => (
               <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+          <select
+            className="dashboard-year dashboard-grade"
+            value={selectedGrade}
+            onChange={handleGradeChange}
+          >
+            {gradeOptions.map((grade) => (
+              <option key={grade} value={grade}>{grade}</option>
             ))}
           </select>
           <button className="dashboard-search-btn" onClick={handleSearch}>Search</button>
@@ -108,16 +120,6 @@ function Dashboard() {
           >
             {chip}
           </button>
-        ))}
-      </div>
-
-      {/* Subject Cards */}
-      <div className="dashboard-grid">
-        {subjects.map((s, i) => (
-          <div key={i} className="subject-card" onClick={() => handleSubjectCard(s.name)}>
-            <div className="subject-icon">{s.icon}</div>
-            <p className="subject-name">{s.name}</p>
-          </div>
         ))}
       </div>
 

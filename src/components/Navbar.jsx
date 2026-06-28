@@ -17,10 +17,15 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-logo">
-        <Link to={token ? '/dashboard' : '/'} className="navbar-logo">ExamBoard</Link>
+        <Link to={token ? '/' : '/'} className="navbar-logo">ExamBoard</Link>
       </div>
       <div className="navbar-links">
+        <Link to="/" className="navbar-link">Home</Link>
         <Link to="/dashboard" className="navbar-link">Browse</Link>
+        <Link to="/exam-practice" className="navbar-link">Exam Practice</Link>
+        <Link to="/books" className="navbar-link">Books</Link>
+        <Link to="/summary" className="navbar-link">Summary</Link>
+        <Link to="/study-tips" className="navbar-link">Study Tips</Link>
 
         {token ? (
           <>

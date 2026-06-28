@@ -44,13 +44,18 @@
   border-color: #4a6cf7;
 }
 
-.dashboard-year {
+.dashboard-year,
+.dashboard-grade {
   background-color: #1e1e3a;
   border: 1px solid #333;
   border-radius: 8px;
   padding: 10px 14px;
   color: #aaa;
   font-size: 14px;
+}
+
+.dashboard-grade {
+  min-width: 180px;
 }
 
 .dashboard-search-btn {
