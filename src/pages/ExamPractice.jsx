@@ -33,6 +33,35 @@ function buildSubjectQuestions(subject, grade) {
   }))
 }
 
+function shuffleArray(array) {
+  const result = [...array]
+  for (let i = result.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+  return result
+}
+
+function shuffleQuestionOptions(question) {
+  const optionsWithIndex = question.options.map((option, index) => ({
+    option,
+    originalIndex: index,
+  }))
+  const shuffledOptions = shuffleArray(optionsWithIndex)
+  const newCorrect = shuffledOptions.findIndex((item) => item.originalIndex === question.correct)
+
+  return {
+    ...question,
+    options: shuffledOptions.map((item) => item.option),
+    correct: newCorrect,
+  }
+}
+
+function shuffleQuestionsAndOptions(questions) {
+  const shuffledQuestions = shuffleArray(questions)
+  return shuffledQuestions.map(shuffleQuestionOptions)
+}
+
 function ExamPractice() {
   const navigate = useNavigate()
   const [stage, setStage] = useState('subject-select')
@@ -42,7 +71,6 @@ function ExamPractice() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [score, setScore] = useState(0)
   const [answers, setAnswers] = useState([])
-  const [showExplanation, setShowExplanation] = useState(false)
 
   const currentQuestion = currentQuestions[currentQuestionIndex]
   const totalQuestions = currentQuestions.length
@@ -66,7 +94,6 @@ function ExamPractice() {
     setCurrentQuestionIndex(0)
     setScore(0)
     setAnswers([])
-    setShowExplanation(false)
     setCurrentQuestions([])
   }
 
@@ -76,12 +103,13 @@ function ExamPractice() {
 
   const handleStartQuiz = () => {
     if (!selectedSubject || !selectedGrade) return
-    setCurrentQuestions(buildSubjectQuestions(selectedSubject, selectedGrade))
+    const questions = buildSubjectQuestions(selectedSubject, selectedGrade)
+    const shuffled = shuffleQuestionsAndOptions(questions)
+    setCurrentQuestions(shuffled)
     setStage('quiz')
     setCurrentQuestionIndex(0)
     setScore(0)
     setAnswers([])
-    setShowExplanation(false)
   }
 
   const handleAnswerSelect = (optionIndex) => {
@@ -113,20 +141,17 @@ function ExamPractice() {
     }
 
     setAnswers(nextAnswers)
-    setShowExplanation(true)
   }
 
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex((prev) => prev - 1)
-      setShowExplanation(false)
     }
   }
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < currentQuestions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1)
-      setShowExplanation(false)
     } else {
       setStage('results')
     }
@@ -140,7 +165,6 @@ function ExamPractice() {
     setCurrentQuestionIndex(0)
     setScore(0)
     setAnswers([])
-    setShowExplanation(false)
   }
 
   const handleBackToHome = () => {
@@ -228,18 +252,6 @@ function ExamPractice() {
             })}
           </div>
 
-          {showExplanation && (
-            (() => {
-              const currentAnswer = answers.find((answer) => answer.questionId === currentQuestion.id)
-              if (!currentAnswer) return null
-              return (
-                <div className="explanation-box">
-                  <strong>{currentAnswer.selected === currentQuestion.correct ? 'Correct! ' : 'Not quite. '}</strong>
-                  {currentQuestion.explanation}
-                </div>
-              )
-            })()
-          )}
 
           <div className="quiz-actions">
             <button className="back-btn" onClick={handlePreviousQuestion} disabled={currentQuestionIndex === 0}>
@@ -294,13 +306,13 @@ function ExamPractice() {
           <div className="quiz-actions">
             <button className="back-btn" onClick={handleRetry}>Try again</button>
             <button className="next-btn" onClick={handleBackToHome}>Back to home</button>
-            {score <= 2 && (
+            {percentage <= 50 && (
               <button
                 className="btn-primary"
-                onClick={() => navigate('/books', { state: { preselectGrade: selectedGrade } })}
+                onClick={() => navigate('/books', { state: { preselectGrade: selectedGrade, preselectSubject: selectedSubject } })}
                 style={{ marginLeft: 12 }}
               >
-                Recommended books for {selectedGrade || 'your grade'}
+                Review books for {selectedSubject || selectedGrade || 'your grade'}
               </button>
             )}
           </div>

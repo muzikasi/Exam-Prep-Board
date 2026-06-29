@@ -14,6 +14,8 @@ function Login() {
   const navigate = useNavigate()
   const { login } = useAuth()
 
+  // forgot password now uses a dedicated page
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
@@ -65,6 +67,10 @@ function Login() {
               onChange={handleChange}
               required
             />
+          </div>
+
+          <div className="forgot-row">
+            <Link to="/reset-password" className="forgot-link">Forgot password?</Link>
           </div>
 
           <button type="submit" className="login-btn" disabled={loading}>

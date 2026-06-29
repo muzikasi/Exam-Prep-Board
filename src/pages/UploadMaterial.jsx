@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createMaterial } from '../api/materials.js'
 import '../styles/UploadMaterial.css'
+import { getSubjects } from '../utils/subjects.js'
+
+const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
 
 function UploadMaterial() {
   const [formData, setFormData] = useState({
@@ -22,6 +25,8 @@ function UploadMaterial() {
   const convertECtoGC = (year) => {
     return year ? Number(year) + 8 : ''
   }
+
+  const isNote = formData.type === 'Study tips' || formData.type === 'Summary notes'
 
 
   const handleChange = (e) => {
@@ -48,13 +53,27 @@ function UploadMaterial() {
   }
 
   const handleFile = (e) => {
-    setFile(e.target.files[0])
+    const selected = e.target.files[0]
+    if (selected && selected.size > MAX_FILE_SIZE) {
+      setError('File is too large. Maximum size is 50MB.')
+      setFile(null)
+      return
+    }
+    setError('')
+    setFile(selected)
   }
 
   const handleDrop = (e) => {
     e.preventDefault()
     setDragOver(false)
-    setFile(e.dataTransfer.files[0])
+    const selected = e.dataTransfer.files[0]
+    if (selected && selected.size > MAX_FILE_SIZE) {
+      setError('File is too large. Maximum size is 50MB.')
+      setFile(null)
+      return
+    }
+    setError('')
+    setFile(selected)
   }
 
   const handleSubmit = async (e) => {
@@ -64,12 +83,30 @@ function UploadMaterial() {
     setSuccess('')
 
     try {
+      if (!file) {
+        setError('Please select a file to upload')
+        setLoading(false)
+        return
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        setError('File is too large. Maximum size is 50MB.')
+        setLoading(false)
+        return
+      }
       const data = new FormData()
       data.append('title', formData.title)
       data.append('subject', formData.subject)
-      data.append('grade', formData.grade)
-      data.append('year[ec]', formData.yearEC)
-      data.append('year[gc]', formData.yearGC)
+      const isNote = formData.type === 'Study tips' || formData.type === 'Summary notes'
+      // backend requires grade and year; send defaults for notes
+      if (!isNote) {
+        data.append('grade', formData.grade)
+        data.append('year[ec]', formData.yearEC)
+        data.append('year[gc]', formData.yearGC)
+      } else {
+        data.append('grade', 'ungraded')
+        data.append('year[ec]', '0')
+        data.append('year[gc]', '0')
+      }
       data.append('type', formData.type)
       data.append('file', file)
 
@@ -86,7 +123,7 @@ function UploadMaterial() {
   return (
     <div className="upload-container">
       <div className="upload-card">
-        <h2 className="upload-title">Upload Material</h2>
+        <h2 className="upload-title">Upload Material (select Subject)</h2>
 
         {error && <div className="alert alert-error">{error}</div>}
         {success && <div className="alert alert-success">{success}</div>}
@@ -136,54 +173,50 @@ function UploadMaterial() {
               <label>Subject</label>
               <select name="subject" value={formData.subject} onChange={handleChange} required>
                 <option value="">Select subject</option>
-                <option>Mathematics</option>
-                <option>Physics</option>
-                <option>English</option>
-                <option>History</option>
-                <option>Chemistry</option>
-                <option>Economics</option>
-                <option>Biology</option>
-                <option>Civics</option>
-                <option>Aptitude</option>
-                <option>Study tips</option>
-                <option>Summery notes</option>
+                {getSubjects().map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
               </select>
             </div>
 
-            <div className="form-group">
-              <label>Exam Grade</label>
-              <select name="grade" value={formData.grade} onChange={handleChange} required>
-                <option value="">Select exam grade</option>
-                <option value="grade 9">Grade 9</option>
-                <option value="grade 10">Grade 10</option>
-                <option value="grade 11">Grade 11</option>
-                <option value="grade 12">Grade 12</option>
-                <option value="university student">University student</option>
-              </select>
-            </div>
+            {!isNote && (
+              <>
+                <div className="form-group">
+                  <label>Exam Grade</label>
+                  <select name="grade" value={formData.grade} onChange={handleChange} required>
+                    <option value="">Select exam grade</option>
+                    <option value="grade 9">Grade 9</option>
+                    <option value="grade 10">Grade 10</option>
+                    <option value="grade 11">Grade 11</option>
+                    <option value="grade 12">Grade 12</option>
+                    <option value="university student">University student</option>
+                  </select>
+                </div>
 
-            <div className="form-group">
-              <label>Year EC</label>
-              <input
-                type="number"
-                name="yearEC"
-                placeholder="e.g. 2016"
-                value={formData.yearEC}
-                onChange={handleChange}
-                required
-              />
-            </div>
+                <div className="form-group">
+                  <label>Year EC</label>
+                  <input
+                    type="number"
+                    name="yearEC"
+                    placeholder="e.g. 2016"
+                    value={formData.yearEC}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
 
 
-            <div className="form-group">
-              <label>Year GC</label>
-              <input
-                type="number"
-                name="yearGC"
-                value={formData.yearGC}
-                readOnly
-              />
-            </div>
+                <div className="form-group">
+                  <label>Year GC</label>
+                  <input
+                    type="number"
+                    name="yearGC"
+                    value={formData.yearGC}
+                    readOnly
+                  />
+                </div>
+              </>
+            )}
 
             <div className="form-group">
               <label>Type</label>

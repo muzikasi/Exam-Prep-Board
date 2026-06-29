@@ -11,9 +11,7 @@ export const getMaterial = async (id) => {
 }
 
 export const createMaterial = async (formData) => {
-  const response = await axios.post('/materials', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  })
+  const response = await axios.post('/materials', formData)
   return response.data
 }
 

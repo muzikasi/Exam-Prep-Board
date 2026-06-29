@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useEffect, useState } from 'react'
 import '../styles/Home.css'
 
 function Home() {
@@ -17,6 +18,8 @@ function Home() {
     { name: '🏛️ Civics', emoji: '⚖️' },
     { name: '🧠 Aptitude', emoji: '🎯' },
   ]
+
+  // no latest books fetch here — Home shows a single Books card
 
   const handleExamPractice = () => {
     if (token) {
@@ -77,6 +80,11 @@ function Home() {
             <div className="feature-icon">💡</div>
             <h3>Study Tips</h3>
             <p>Get study strategies and exam-ready tips.</p>
+          </div>
+          <div className="feature-card" onClick={() => navigate('/books')}>
+            <div className="feature-icon">📖</div>
+            <h3>Books</h3>
+            <p>Browse uploaded textbooks and recommended readings.</p>
           </div>
         </div>
 

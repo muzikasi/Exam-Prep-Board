@@ -5,8 +5,10 @@ import '../styles/Register.css'
 
 function Register() {
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
+    grade: '',
     password: '',
     confirmPassword: ''
   })
@@ -45,12 +47,20 @@ function Register() {
   }
 
   const validateForm = () => {
-    if (!formData.name.trim()) {
-      setError('Name is required')
+    if (!formData.firstName.trim()) {
+      setError('First name is required')
+      return false
+    }
+    if (!formData.lastName.trim()) {
+      setError('Last name is required')
       return false
     }
     if (!formData.email.trim()) {
       setError('Email is required')
+      return false
+    }
+    if (!formData.grade) {
+      setError('Please select your grade')
       return false
     }
     if (!formData.password) {
@@ -108,17 +118,30 @@ function Register() {
         {success && <div className="alert alert-success">{success}</div>}
 
         <form onSubmit={handleSubmit}>
+          <div className="form-row">
           <div className="form-group">
-            <label>Full Name</label>
+            <label>First Name</label>
             <input
               type="text"
-              name="name"
-              placeholder="Your name"
-              value={formData.name}
+              name="firstName"
+              placeholder="First name"
+              value={formData.firstName}
               onChange={handleChange}
               required
             />
           </div>
+          <div className="form-group">
+            <label>Last Name</label>
+            <input
+              type="text"
+              name="lastName"
+              placeholder="Last name"
+              value={formData.lastName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+        </div>
 
           <div className="form-group">
             <label>Email</label>
@@ -130,6 +153,18 @@ function Register() {
               onChange={handleChange}
               required
             />
+          </div>
+
+          <div className="form-group">
+            <label>Grade</label>
+            <select name="grade" value={formData.grade} onChange={handleChange} required>
+              <option value="">Select your grade</option>
+              <option value="grade 9">Grade 9</option>
+              <option value="grade 10">Grade 10</option>
+              <option value="grade 11">Grade 11</option>
+              <option value="grade 12">Grade 12</option>
+              <option value="university student">University student</option>
+            </select>
           </div>
 
           <div className="form-group">

@@ -93,6 +93,37 @@
   box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
 }
 
+.password-field-group {
+  position: relative;
+}
+
+.password-input-wrapper {
+  position: relative;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 80px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: #4a6cf7;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.password-toggle:hover {
+  text-decoration: underline;
+}
+
 .password-strength {
   margin-top: 10px;
 }
@@ -115,6 +146,7 @@
 .strength-label {
   font-size: 12px;
   font-weight: 600;
+  color: #1890ff;
 }
 
 .password-requirements {

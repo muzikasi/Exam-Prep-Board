@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react'
 import axios from '../api/axios.js'
 import { createMaterial, updateMaterial } from '../api/materials.js'
+import { createBook, deleteBook, getBooks, updateBook } from '../api/books.js'
 import { readPracticeSets, savePracticeSets } from '../utils/practiceSets.js'
+import { getSubjects, addSubject, removeSubject } from '../utils/subjects.js'
 import '../styles/AdminPanel.css'
 
-const examSubjects = ['Mathematics', 'Physics', 'English', 'History', 'Chemistry', 'Economics', 'Biology', 'Civics', 'Aptitude']
+// subjects will be loaded from localStorage via utils
 const gradeOptions = ['grade 9', 'grade 10', 'grade 11', 'grade 12', 'university student']
+
+const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
 
 function AdminPanel() {
   const [materials, setMaterials] = useState([])
@@ -25,7 +29,15 @@ function AdminPanel() {
   const [materialLoading, setMaterialLoading] = useState(false)
   const [materialError, setMaterialError] = useState('')
   const [materialSuccess, setMaterialSuccess] = useState('')
+  const [books, setBooks] = useState([])
+  const [bookForm, setBookForm] = useState({ title: '', subject: '', grade: '', description: '', isbn: '' })
+  const [bookFile, setBookFile] = useState(null)
+  const [editingBookId, setEditingBookId] = useState(null)
+  const [bookLoading, setBookLoading] = useState(false)
+  const [bookError, setBookError] = useState('')
+  const [bookSuccess, setBookSuccess] = useState('')
   const [practiceSets, setPracticeSets] = useState([])
+  const [subjects, setSubjects] = useState(getSubjects())
   const [practiceForm, setPracticeForm] = useState({ subject: '', grade: '', description: '' })
   const [practiceQuestions, setPracticeQuestions] = useState([{ question: '', options: '', answer: '' }])
   const [editingPracticeId, setEditingPracticeId] = useState(null)
@@ -36,16 +48,23 @@ function AdminPanel() {
   useEffect(() => {
     fetchData()
     loadPracticeSets()
+    loadSubjects()
   }, [])
+
+  const loadSubjects = () => {
+    setSubjects(getSubjects())
+  }
 
   const fetchData = async () => {
     try {
-      const [materialsRes, usersRes] = await Promise.all([
+      const [materialsRes, usersRes, booksRes] = await Promise.all([
         axios.get('/admin/materials'),
-        axios.get('/admin/users')
+        axios.get('/admin/users'),
+        getBooks()
       ])
       setMaterials(materialsRes.data)
       setUsers(usersRes.data)
+      setBooks(Array.isArray(booksRes) ? booksRes : [])
     } catch (error) {
       console.error('Error fetching admin data:', error)
     } finally {
@@ -80,7 +99,14 @@ function AdminPanel() {
   }
 
   const handleMaterialFile = (e) => {
-    setMaterialFile(e.target.files[0])
+    const file = e.target.files[0]
+    if (file && file.size > MAX_FILE_SIZE) {
+      setMaterialError('File is too large. Maximum size is 50MB.')
+      setMaterialFile(null)
+      return
+    }
+    setMaterialError('')
+    setMaterialFile(file)
   }
 
   const handleDeleteMaterial = async (id) => {
@@ -115,12 +141,28 @@ function AdminPanel() {
     setMaterialSuccess('')
 
     try {
+      if (materialFile && materialFile.size > MAX_FILE_SIZE) {
+        setMaterialError('File is too large. Maximum size is 50MB.')
+        setMaterialLoading(false)
+        return
+      }
       const data = new FormData()
       data.append('title', materialForm.title)
       data.append('subject', materialForm.subject)
-      if (materialForm.grade) data.append('grade', materialForm.grade)
-      data.append('year[ec]', materialForm.yearEC)
-      data.append('year[gc]', materialForm.yearGC)
+      const isNoteType = materialForm.type === 'Study tips' || materialForm.type === 'Summary notes'
+      // backend expects grade and year fields; send safe defaults for note types
+      if (!isNoteType && materialForm.grade) {
+        data.append('grade', materialForm.grade)
+      } else if (isNoteType) {
+        data.append('grade', 'ungraded')
+      }
+      if (!isNoteType) {
+        data.append('year[ec]', materialForm.yearEC)
+        data.append('year[gc]', materialForm.yearGC)
+      } else {
+        data.append('year[ec]', '0')
+        data.append('year[gc]', '0')
+      }
       data.append('type', materialForm.type)
       if (materialFile) data.append('file', materialFile)
 
@@ -163,6 +205,112 @@ function AdminPanel() {
     setMaterialFile(null)
     setMaterialError('')
     setMaterialSuccess('')
+  }
+
+  const handleBookChange = (e) => {
+    const { name, value } = e.target
+    setBookForm({ ...bookForm, [name]: value })
+  }
+
+  const handleBookFile = (e) => {
+    const file = e.target.files[0]
+    if (file && file.size > MAX_FILE_SIZE) {
+      setBookError('File is too large. Maximum size is 50MB.')
+      setBookFile(null)
+      return
+    }
+    setBookError('')
+    setBookFile(file)
+  }
+
+  const handleBookSubmit = async (e) => {
+    e.preventDefault()
+    if (!bookForm.title.trim()) {
+      setBookError('Please enter a book title')
+      return
+    }
+    if (!bookForm.grade) {
+      setBookError('Please choose a grade')
+      return
+    }
+
+    setBookLoading(true)
+    setBookError('')
+    setBookSuccess('')
+
+    try {
+      // If a file is selected, send as FormData, otherwise send JSON
+      let payload = bookForm
+      if (bookFile) {
+        if (bookFile.size > MAX_FILE_SIZE) {
+          setBookError('File is too large. Maximum size is 50MB.')
+          setBookLoading(false)
+          return
+        }
+        const form = new FormData()
+        form.append('title', bookForm.title)
+        form.append('subject', bookForm.subject)
+        form.append('grade', bookForm.grade)
+        form.append('description', bookForm.description)
+        form.append('isbn', bookForm.isbn)
+        form.append('file', bookFile)
+        payload = form
+      }
+
+      if (editingBookId) {
+        await updateBook(editingBookId, payload)
+        setBookSuccess('Book updated successfully')
+      } else {
+        await createBook(payload)
+        setBookSuccess('Book uploaded successfully')
+      }
+
+      setBookForm({ title: '', grade: '', description: '', isbn: '' })
+      setEditingBookId(null)
+      setBookFile(null)
+      const refreshedBooks = await getBooks()
+      setBooks(Array.isArray(refreshedBooks) ? refreshedBooks : [])
+    } catch (err) {
+      console.error('Book upload error:', err)
+      setBookError(err.response?.data?.message || JSON.stringify(err.response?.data) || 'Something went wrong')
+    } finally {
+      setBookLoading(false)
+    }
+  }
+
+  const startEditBook = (book) => {
+    setActiveSection('books')
+    setEditingBookId(book._id)
+    setBookForm({
+      title: book.title || '',
+      subject: book.subject || '',
+      grade: book.grade || '',
+      description: book.description || '',
+      isbn: book.isbn || ''
+    })
+    setBookError('')
+    setBookSuccess('')
+    setBookFile(null)
+  }
+
+  const cancelBookEdit = () => {
+    setEditingBookId(null)
+    setBookForm({ title: '', grade: '', description: '', isbn: '' })
+    setBookError('')
+    setBookSuccess('')
+    setBookFile(null)
+  }
+
+  const isNoteType = materialForm.type === 'Study tips' || materialForm.type === 'Summary notes'
+
+  const handleDeleteBook = async (id) => {
+    if (!window.confirm('Delete this book?')) return
+    try {
+      await deleteBook(id)
+      setBooks(books.filter((book) => book._id !== id))
+    } catch (err) {
+      setBookError(err.response?.data?.message || 'Could not delete book')
+    }
   }
 
   const handlePracticeChange = (e) => {
@@ -250,6 +398,34 @@ function AdminPanel() {
     setPracticeLoading(false)
   }
 
+  // Subject management (admin)
+  const [newSubject, setNewSubject] = useState('')
+  const [subjectsMsg, setSubjectsMsg] = useState('')
+
+  const handleAddSubject = (e) => {
+    e.preventDefault()
+    setSubjectsMsg('')
+    const res = addSubject(newSubject)
+    if (!res.ok) {
+      setSubjectsMsg(res.message || 'Could not add subject')
+      return
+    }
+    setNewSubject('')
+    setSubjects(res.subjects)
+    setSubjectsMsg('Subject added')
+  }
+
+  const handleRemoveSubject = (name) => {
+    if (!window.confirm(`Remove subject "${name}"?`)) return
+    const res = removeSubject(name)
+    if (res.ok) {
+      setSubjects(res.subjects)
+      setSubjectsMsg('Subject removed')
+    } else {
+      setSubjectsMsg('Could not remove subject')
+    }
+  }
+
   if (loading) return <div className="admin-loading">Loading...</div>
 
   return (
@@ -269,6 +445,12 @@ function AdminPanel() {
           </button>
           <button className={`admin-nav-btn ${activeSection === 'materials' ? 'active' : ''}`} onClick={() => setActiveSection('materials')}>
             📚 Materials ({materials.length})
+          </button>
+          <button className={`admin-nav-btn ${activeSection === 'books' ? 'active' : ''}`} onClick={() => setActiveSection('books')}>
+            📖 Books ({books.length})
+          </button>
+          <button className={`admin-nav-btn ${activeSection === 'subjects' ? 'active' : ''}`} onClick={() => setActiveSection('subjects')}>
+            🧭 Subjects
           </button>
           <button className={`admin-nav-btn ${activeSection === 'post-material' ? 'active' : ''}`} onClick={() => setActiveSection('post-material')}>
             ➕ Post Material
@@ -307,6 +489,7 @@ function AdminPanel() {
               <div className="admin-action-row">
                 <button className="admin-action-btn" onClick={() => setActiveSection('users')}>View users</button>
                 <button className="admin-action-btn" onClick={() => setActiveSection('materials')}>View materials</button>
+                <button className="admin-action-btn" onClick={() => setActiveSection('books')}>Manage books</button>
                 <button className="admin-action-btn" onClick={() => setActiveSection('post-material')}>Post new material</button>
                 <button className="admin-action-btn" onClick={() => setActiveSection('exam-practice')}>Create practice set</button>
               </div>
@@ -395,6 +578,128 @@ function AdminPanel() {
           </div>
         )}
 
+        {activeSection === 'books' && (
+          <div className="admin-section-card">
+            <div className="admin-section-header">
+              <h3>Book Management</h3>
+              <span>Admin-only book uploads and edits</span>
+            </div>
+
+            {bookError && <div className="alert alert-error">{bookError}</div>}
+            {bookSuccess && <div className="alert alert-success">{bookSuccess}</div>}
+
+            <form className="admin-form" onSubmit={handleBookSubmit}>
+              <div className="admin-form-grid">
+                <label className="admin-field">
+                  <span>Title</span>
+                  <input type="text" name="title" value={bookForm.title} onChange={handleBookChange} required />
+                </label>
+
+                <label className="admin-field">
+                  <span>Grade</span>
+                  <select name="grade" value={bookForm.grade} onChange={handleBookChange} required>
+                    <option value="">Select grade</option>
+                    {gradeOptions.map((grade) => (
+                      <option key={grade} value={grade}>{grade}</option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="admin-field">
+                  <span>Subject</span>
+                  <select name="subject" value={bookForm.subject} onChange={handleBookChange} required>
+                    <option value="">Select subject</option>
+                    {subjects.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="admin-field">
+                  <span>ISBN</span>
+                  <input type="text" name="isbn" value={bookForm.isbn} onChange={handleBookChange} placeholder="Optional" />
+                </label>
+
+                <label className="admin-field admin-field-full">
+                  <span>Description</span>
+                  <textarea name="description" rows="3" value={bookForm.description} onChange={handleBookChange} placeholder="Short description of the book" />
+                </label>
+                <label className="admin-field">
+                  <span>File (PDF)</span>
+                  <input type="file" accept=".pdf" onChange={handleBookFile} />
+                </label>
+              </div>
+
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button className="admin-submit-btn" type="submit" disabled={bookLoading}>
+                  {bookLoading ? (editingBookId ? 'Updating...' : 'Uploading...') : (editingBookId ? 'Update Book' : 'Upload Book')}
+                </button>
+                {editingBookId && (
+                  <button type="button" className="admin-secondary-btn" onClick={cancelBookEdit}>Cancel</button>
+                )}
+              </div>
+            </form>
+
+            <div className="admin-table-wrapper" style={{ marginTop: 24 }}>
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Subject</th>
+                    <th>Grade</th>
+                    <th>ISBN</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {books.map((book) => (
+                    <tr key={book._id}>
+                      <td>{book.title}</td>
+                      <td>{book.subject}</td>
+                      <td>{book.grade}</td>
+                      <td>{book.isbn || '—'}</td>
+                      <td>
+                        <button className="admin-link-btn" onClick={() => startEditBook(book)}>✏️ Edit</button>
+                        <button className="admin-delete-btn" onClick={() => handleDeleteBook(book._id)}>🗑 Delete</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {activeSection === 'subjects' && (
+          <div className="admin-section-card">
+            <div className="admin-section-header">
+              <h3>Manage Subjects</h3>
+              <span>Add or remove subjects used across the site</span>
+            </div>
+
+            {subjectsMsg && <div className="alert alert-success">{subjectsMsg}</div>}
+
+            <form className="admin-form" onSubmit={handleAddSubject}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input type="text" placeholder="New subject name" value={newSubject} onChange={(e) => setNewSubject(e.target.value)} />
+                <button className="admin-submit-btn" type="submit">Add Subject</button>
+              </div>
+            </form>
+
+            <div style={{ marginTop: 16 }}>
+              <h4>Existing subjects</h4>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {subjects.map((s) => (
+                  <div key={s} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <span style={{ padding: '6px 10px', background: '#f3f3f3', borderRadius: 6 }}>{s}</span>
+                    <button className="admin-delete-btn" onClick={() => handleRemoveSubject(s)}>Remove</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeSection === 'post-material' && (
           <div className="admin-section-card">
             <div className="admin-section-header">
@@ -416,23 +721,25 @@ function AdminPanel() {
                   <span>Subject</span>
                   <select name="subject" value={materialForm.subject} onChange={handleMaterialChange} required>
                     <option value="">Select subject</option>
-                    <option>Mathematics</option>
-                    <option>Physics</option>
-                    <option>English</option>
-                    <option>History</option>
-                    <option>Chemistry</option>
-                    <option>Economics</option>
-                    <option>Biology</option>
-                    <option>Civics</option>
-                    <option>Aptitude</option>
-                    <option>Study tips</option>
-                    <option>Summary notes</option>
+                    {subjects.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="admin-field">
+                  <span>Grade</span>
+                  <select name="grade" value={materialForm.grade} onChange={handleMaterialChange} required={!isNoteType}>
+                    <option value="">Select grade</option>
+                    {gradeOptions.map((grade) => (
+                      <option key={grade} value={grade}>{grade}</option>
+                    ))}
                   </select>
                 </label>
 
                 <label className="admin-field">
                   <span>Year EC</span>
-                  <input type="number" name="yearEC" value={materialForm.yearEC} onChange={handleMaterialChange} required />
+                  <input type="number" name="yearEC" value={materialForm.yearEC} onChange={handleMaterialChange} required={!isNoteType} />
                 </label>
 
                 <label className="admin-field">
@@ -484,7 +791,7 @@ function AdminPanel() {
                   <span>Subject</span>
                   <select name="subject" value={practiceForm.subject} onChange={handlePracticeChange} required>
                     <option value="">Select a subject</option>
-                    {examSubjects.map((subject) => (
+                    {subjects.map((subject) => (
                       <option key={subject} value={subject}>{subject}</option>
                     ))}
                   </select>

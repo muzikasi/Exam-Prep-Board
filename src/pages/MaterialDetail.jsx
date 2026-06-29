@@ -20,6 +20,13 @@ function MaterialDetail() {
     const [upvoteCount, setUpvoteCount] = useState(0)
     const [bookmarked, setBookmarked] = useState(false)
     const [numPages, setNumPages] = useState(null)
+    const API_HOST = 'http://localhost:5000'
+
+    const resolveFileUrl = (url) => {
+        if (!url) return url
+        if (url.startsWith('http')) return url
+        return `${API_HOST}${url.startsWith('/') ? url : `/${url}`}`
+    }
 
     useEffect(() => {
         fetchMaterial()
@@ -64,16 +71,18 @@ function MaterialDetail() {
 
     const handleBookmark = async () => {
         if (!token) return navigate('/login')
+        // optimistic toggle
+        const prev = bookmarked
+        setBookmarked(!prev)
         try {
-            if (bookmarked) {
+            if (prev) {
                 await removeBookmark(id)
-                setBookmarked(false)
             } else {
                 await addBookmark(id)
-                setBookmarked(true)
             }
         } catch (error) {
             console.error('Error bookmarking:', error)
+            setBookmarked(prev)
         }
     }
 
@@ -83,6 +92,8 @@ function MaterialDetail() {
     const onDocumentLoadSuccess = ({ numPages }) => {
         setNumPages(numPages)
     }
+
+    const fileUrl = resolveFileUrl(material.fileUrl)
 
     return (
         <div className="detail-container">
@@ -111,12 +122,12 @@ function MaterialDetail() {
 
                         {/* File Preview */}
                         <div className="detail-preview">
-                            {material.fileType === 'pdf' ? (
+                            {material.fileType?.toLowerCase() === 'pdf' ? (
                                 <div style={{ width: '100%' }}>
                                     <Document
-                                        file={material.fileUrl}
+                                        file={fileUrl}
                                         onLoadSuccess={onDocumentLoadSuccess}
-                                        onLoadError={(error) => console.error('PDF error:', error)}
+                                        onLoadError={(error) => console.error('PDF error:', error, fileUrl)}
                                     >
                                         {Array.from(new Array(numPages), (el, index) => (
                                             <Page
@@ -133,7 +144,7 @@ function MaterialDetail() {
                                 </div>
                             ) : (
                                 <img
-                                    src={material.fileUrl}
+                                    src={fileUrl}
                                     alt={material.title}
                                     style={{ maxWidth: '100%', borderRadius: '8px' }}
                                 />
@@ -195,7 +206,7 @@ function MaterialDetail() {
 
                         {/* Download */}
                         <a
-                            href={material.fileUrl}
+                            href={fileUrl}
                             target="_blank"
                             rel="noreferrer"
                             className="detail-download-btn"

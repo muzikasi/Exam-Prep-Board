@@ -1,25 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getMaterials } from '../api/materials.js'
 import '../styles/Dashboard.css'
+import { getSubjects } from '../utils/subjects.js'
 
-const subjects = [
-  { icon: '📐', name: 'Mathematics' },
-  { icon: '⚛️', name: 'Physics' },
-  { icon: '📚', name: 'English' },
-  { icon: '🌍', name: 'History' },
-  { icon: '🧪', name: 'Chemistry' },
-  { icon: '📊', name: 'Economics' },
-  { icon: '🧬', name: 'Biology' },
-  { icon: '⚖️', name: 'Civics' },
-  { icon: '🧠', name: 'Aptitude' },
-  { icon: '📚', name: 'Summery notes' },
-  { icon: '📝', name: 'Study tips' },
-
-
-]
-
-const chips = ['All subjects', 'Mathematics', 'Physics', 'English', 'History', 'Chemistry', 'Economics','Biology','Civics','Aptitude']
+const chips = ['All subjects', ...getSubjects()]
 const gradeOptions = ['All grades', 'grade 9', 'grade 10', 'grade 11', 'grade 12', 'university student']
 
 function Dashboard() {
@@ -69,6 +54,29 @@ function Dashboard() {
   const handleGradeChange = (e) => {
     setSelectedGrade(e.target.value)
   }
+
+  const filteredMaterials = useMemo(() => {
+    return materials.filter((material) => {
+      const isNote = material.type === 'Study tips' || material.type === 'Summary notes'
+      if (isNote) return false
+      const matchesSearch = !search || [
+        material.title,
+        material.subject,
+        material.type,
+        material.grade,
+      ].some((field) => field?.toLowerCase().includes(search.toLowerCase()))
+
+      const matchesYear = !year || [
+        material.year?.ec?.toString(),
+        material.year?.gc?.toString(),
+      ].some((value) => value === year.toString())
+
+      const matchesGrade = selectedGrade === 'All grades' || material.grade?.toLowerCase() === selectedGrade.toLowerCase()
+      const matchesSubject = activeChip === 'All subjects' || material.subject === activeChip
+
+      return matchesSearch && matchesYear && matchesGrade && matchesSubject
+    })
+  }, [materials, search, year, selectedGrade, activeChip])
 
   return (
     <div className="dashboard">
@@ -127,15 +135,15 @@ function Dashboard() {
       <div className="dashboard-recent">
         <p className="recent-label">
           {activeChip === 'All subjects' ? 'Recent uploads' : activeChip}
-          {' '}({materials.length})
+          {' '}({filteredMaterials.length})
         </p>
 
         {loading ? (
           <p style={{ color: '#888', textAlign: 'center', padding: '20px' }}>Loading...</p>
-        ) : materials.length === 0 ? (
+        ) : filteredMaterials.length === 0 ? (
           <p style={{ color: '#888', textAlign: 'center', padding: '20px' }}>No materials found!</p>
         ) : (
-          materials.map((m) => (
+          filteredMaterials.map((m) => (
             <div
               key={m._id}
               className="recent-item"

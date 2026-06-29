@@ -12,11 +12,12 @@ import Books from './pages/Books'
 import Navbar from './components/Navbar'
 import ProtectedRoute from './components/ProtectedRoute'
 import VerifyEmail from './pages/VerifyEmail'
+import VerifyEmailLink from './pages/VerifyEmailLink'
+import ResetPassword from './pages/ResetPassword'
 import Profile from './pages/Profile'
 import MaterialDetail from './pages/MaterialDetail'
 import MyUploads from './pages/MyUploads'
 import Bookmarks from './pages/Bookmarks'
-import VerifyEmailLink from './pages/VerifyEmailLink'
 import { useAuth } from './context/AuthContext.jsx'
 
 // Admin Route component — outside App function!
@@ -37,6 +38,8 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/verify-email/:token" element={<VerifyEmailLink />} />
+        <Route path="/forgot-password" element={<Navigate to="/reset-password" replace />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/material/:id" element={<MaterialDetail />} />
         <Route path="/dashboard" element={
           <ProtectedRoute>

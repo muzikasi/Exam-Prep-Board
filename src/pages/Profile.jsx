@@ -13,7 +13,17 @@ function Profile() {
   const [bookmarks, setBookmarks] = useState(0)
   const [upvotes, setUpvotes] = useState(0)
   const [editing, setEditing] = useState(false)
-  const [nameInput, setNameInput] = useState(user?.name || '')
+  const displayName = user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : user?.name || ''
+  const isAdmin = user?.role?.toLowerCase() === 'admin'
+  const parseNameParts = (fullName) => {
+    if (!fullName) return { firstName: '', lastName: '' }
+    const parts = fullName.trim().split(' ')
+    return { firstName: parts[0] || '', lastName: parts.slice(1).join(' ') || '' }
+  }
+
+  const initialName = user?.firstName || user?.name ? parseNameParts(user?.firstName ? `${user.firstName} ${user.lastName || ''}` : user.name) : { firstName: '', lastName: '' }
+  const [firstNameInput, setFirstNameInput] = useState(initialName.firstName)
+  const [lastNameInput, setLastNameInput] = useState(initialName.lastName)
   const [gradeInput, setGradeInput] = useState(user?.grade || JSON.parse(localStorage.getItem('user') || '{}')?.grade || 'grade 9')
   const [photoFile, setPhotoFile] = useState(null)
   const [photoPreview, setPhotoPreview] = useState(null)
@@ -91,9 +101,35 @@ function Profile() {
 
   const handleStartEdit = () => {
     const storedUser = JSON.parse(localStorage.getItem('user') || '{}')
+    const currentName = user?.firstName || storedUser?.firstName ? `${user?.firstName || storedUser?.firstName} ${user?.lastName || storedUser?.lastName || ''}`.trim() : user?.name || storedUser?.name || ''
+    const parsed = parseNameParts(currentName)
     setEditing(true)
-    setNameInput(user?.name || '')
+    setFirstNameInput(parsed.firstName)
+    setLastNameInput(parsed.lastName)
     setGradeInput(user?.grade || storedUser?.grade || 'grade 9')
+  }
+
+  useEffect(() => {
+    if (!editing) {
+      const source = user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : user?.name || ''
+      const parsed = parseNameParts(source)
+      setFirstNameInput(parsed.firstName)
+      setLastNameInput(parsed.lastName)
+      setGradeInput(user?.grade || JSON.parse(localStorage.getItem('user') || '{}')?.grade || 'grade 9')
+    }
+  }, [user, editing])
+
+  const getAvatarUrl = (userObj) => {
+    if (!userObj) return null
+    if (typeof userObj.photo === 'string') return userObj.photo
+    if (userObj.photo?.url) return userObj.photo.url
+    if (typeof userObj.avatar === 'string') return userObj.avatar
+    if (userObj.avatar?.url) return userObj.avatar.url
+    if (typeof userObj.photoUrl === 'string') return userObj.photoUrl
+    if (typeof userObj.avatarUrl === 'string') return userObj.avatarUrl
+    if (typeof userObj.picture === 'string') return userObj.picture
+    if (typeof userObj.image === 'string') return userObj.image
+    return null
   }
 
   const handlePhotoChange = (e) => {
@@ -102,6 +138,13 @@ function Profile() {
     if (f) setPhotoPreview(URL.createObjectURL(f))
   }
 
+  useEffect(() => {
+    const avatarUrl = getAvatarUrl(user)
+    if (avatarUrl) {
+      setPhotoPreview(avatarUrl)
+    }
+  }, [user])
+
   const handleSaveProfile = async (e) => {
     e.preventDefault()
     setProfileMsg('')
@@ -109,18 +152,29 @@ function Profile() {
       const storedUser = JSON.parse(localStorage.getItem('user') || '{}')
       const grade = gradeInput || user?.grade || storedUser?.grade || 'grade 9'
       const data = new FormData()
-      data.append('name', nameInput)
+      // send both firstName/lastName and legacy name for compatibility
+      const combinedName = `${firstNameInput || ''} ${lastNameInput || ''}`.trim()
+      data.append('firstName', firstNameInput)
+      data.append('lastName', lastNameInput)
+      data.append('name', combinedName)
       data.append('grade', grade)
       if (photoFile) data.append('photo', photoFile)
 
       const res = await axios.put('/auth/profile', data)
       // update local user
-      const token = localStorage.getItem('token')
-      // login is available from useAuth
-      // eslint-disable-next-line
-      const updatedUser = res.data.user || { ...user, name: nameInput }
+      const serverUser = res.data.user || res.data || {}
+      const updatedUser = {
+        ...user,
+        ...serverUser,
+        firstName: firstNameInput,
+        lastName: lastNameInput,
+        name: combinedName,
+      }
       localStorage.setItem('user', JSON.stringify(updatedUser))
       if (login) login(updatedUser, localStorage.getItem('token'))
+      const updatedAvatar = getAvatarUrl(updatedUser)
+      if (updatedAvatar) setPhotoPreview(updatedAvatar)
+      setPhotoFile(null)
       setProfileMsg('Profile updated')
       setEditing(false)
     } catch (err) {
@@ -167,12 +221,12 @@ function Profile() {
             {photoPreview ? (
               <img src={photoPreview} alt="avatar" style={{ width: 80, height: 80, borderRadius: '50%' }} />
             ) : (
-              user?.name?.charAt(0).toUpperCase()
+              displayName?.charAt(0).toUpperCase()
             )}
         </div>
 
         {/* User Info */}
-        <h2 className="profile-name">{user?.name}</h2>
+        <h2 className="profile-name">{displayName}</h2>
         <p className="profile-email">{user?.email}</p>
         <span className="profile-role">{user?.role}</span>
 
@@ -181,19 +235,25 @@ function Profile() {
         {editing ? (
           <form onSubmit={handleSaveProfile} className="profile-form">
             <div className="profile-field">
-              <label>Name</label>
-              <input className="profile-input" value={nameInput} onChange={e => setNameInput(e.target.value)} />
+              <label>First Name</label>
+              <input className="profile-input" value={firstNameInput} onChange={e => setFirstNameInput(e.target.value)} />
             </div>
             <div className="profile-field">
-              <label>Grade</label>
-              <select className="profile-input" value={gradeInput} onChange={(e) => setGradeInput(e.target.value)}>
-                <option value="grade 9">Grade 9</option>
-                <option value="grade 10">Grade 10</option>
-                <option value="grade 11">Grade 11</option>
-                <option value="grade 12">Grade 12</option>
-                <option value="university student">University student</option>
-              </select>
+              <label>Last Name</label>
+              <input className="profile-input" value={lastNameInput} onChange={e => setLastNameInput(e.target.value)} />
             </div>
+            {!isAdmin && (
+              <div className="profile-field">
+                <label>Grade</label>
+                <select className="profile-input" value={gradeInput} onChange={(e) => setGradeInput(e.target.value)}>
+                  <option value="grade 9">Grade 9</option>
+                  <option value="grade 10">Grade 10</option>
+                  <option value="grade 11">Grade 11</option>
+                  <option value="grade 12">Grade 12</option>
+                  <option value="university student">University student</option>
+                </select>
+              </div>
+            )}
             <div className="profile-field">
               <label>Photo</label>
               <input className="profile-input" type="file" accept="image/*" onChange={handlePhotoChange} />

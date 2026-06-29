@@ -15,7 +15,8 @@ function Bookmarks() {
   const fetchBookmarks = async () => {
     try {
       const data = await getBookmarks()
-      setBookmarks(data)
+      // filter out any invalid entries that lack material data
+      setBookmarks(Array.isArray(data) ? data.filter((b) => b && b.material) : [])
     } catch (error) {
       console.error('Error fetching bookmarks:', error)
     } finally {
@@ -55,24 +56,24 @@ function Bookmarks() {
           {bookmarks.map(b => (
             <div key={b._id} className="bookmarks-item">
               <div className="bookmarks-item-icon">
-                {b.material.fileType === 'pdf' ? '📄' : '🖼️'}
+                {b.material?.fileType === 'pdf' ? '📄' : '🖼️'}
               </div>
               <div className="bookmarks-item-info">
-                <p className="bookmarks-item-title">{b.material.title}</p>
+                <p className="bookmarks-item-title">{b.material?.title || 'Untitled'}</p>
                 <p className="bookmarks-item-meta">
-                  {b.material.subject} · {b.material.year?.ec} EC · ▲ {b.material.upvotes?.length} upvotes
+                  {b.material?.subject} · {b.material?.year?.ec} EC · ▲ {b.material?.upvotes?.length || 0} upvotes
                 </p>
               </div>
               <div className="bookmarks-item-actions">
                 <button
                   className="bookmarks-view-btn"
-                  onClick={() => navigate(`/material/${b.material._id}`)}
+                  onClick={() => navigate(`/material/${b.material?._id}`)}
                 >
                   View
                 </button>
                 <button
                   className="bookmarks-remove-btn"
-                  onClick={() => handleRemove(b.material._id)}
+                  onClick={() => handleRemove(b.material?._id)}
                 >
                   Remove
                 </button>
